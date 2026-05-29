@@ -92,10 +92,20 @@
     backface-visibility: hidden;
     height: 100%;
     animation: scroll-left var(--dur, 80s) linear infinite;
+    /* Start PAUSED. On mobile cold-load the main thread is busy decoding
+       images during first paint, and iOS Safari frequently fails to start a
+       CSS animation declared in that window (the marquee shows static until a
+       refresh warms the cache). We flip to running only once images have
+       decoded and the stack is revealed (.ready), which forces the animation
+       to engage on a clean frame. */
+    animation-play-state: paused;
   }
   .marquee.reverse .marquee-track {
     animation-name: scroll-right;
   }
+  /* Run once revealed; the offscreen-pause rule below (later in source, equal
+     specificity) still wins when the hero scrolls away. */
+  .marquee-stack.ready .marquee-track { animation-play-state: running; }
   @keyframes scroll-left {
     from { transform: translateX(0); }
     to   { transform: translateX(-33.3333%); }
@@ -246,6 +256,10 @@
   .cta {
     position: relative;
     overflow: hidden;
+    /* clip-path clips the shine reliably even while the button is mid-transform
+       (the hover wiggle scales+rotates it). Plain overflow:hidden lets a
+       mix-blend-mode child leak past the rounded edges during transforms. */
+    clip-path: inset(0 round 999px);
     display: inline-flex;
     align-items: center;
     gap: 12px;
@@ -298,19 +312,17 @@
   .cta > * { position: relative; z-index: 2; }
   .cta:hover {
     background: var(--coral-deep);
-    /* One quick shake on hover-enter, then the button settles. */
-    animation: shake .42s cubic-bezier(.36,.07,.19,.97) 1;
+    /* Grow + a brief playful wiggle on hover-enter, then hold enlarged.
+       fill-mode:forwards keeps the button at scale(1.06) for the whole hover. */
+    animation: cta-wiggle .5s ease-in-out forwards;
   }
-  /* Pause the shine sweep while the button shakes so the two transforms don't fight visually. */
-  .cta:hover::after { animation-play-state: paused; }
-  @keyframes shake {
-    0%   { transform: translate(0, 0) rotate(0); }
-    15%  { transform: translate(-2px, 1px) rotate(-1.2deg); }
-    30%  { transform: translate(2px, -1px) rotate(1.2deg); }
-    45%  { transform: translate(-1px, 2px) rotate(-.6deg); }
-    60%  { transform: translate(1px, -2px) rotate(.6deg); }
-    75%  { transform: translate(-2px, 0) rotate(-1deg); }
-    100% { transform: translate(0, 0) rotate(0); }
+  /* Shimmer keeps sweeping during hover — do NOT pause it. */
+  @keyframes cta-wiggle {
+    0%   { transform: scale(1)    rotate(0); }
+    25%  { transform: scale(1.06) rotate(-2.2deg); }
+    50%  { transform: scale(1.06) rotate(2deg); }
+    75%  { transform: scale(1.06) rotate(-1.2deg); }
+    100% { transform: scale(1.06) rotate(0); }
   }
   .cta .arrow {
     width: 22px; height: 22px;
@@ -985,6 +997,14 @@
       stack.classList.add('ready');
     }));
   })();
+
+  // Safety net: if decode() ever stalls on a flaky mobile connection, force the
+  // reveal (and therefore the animation start) after 2.5s so the marquee never
+  // sits static. Harmless if .ready was already added.
+  setTimeout(() => {
+    const stack = document.getElementById('marqueeStack');
+    if (stack) stack.classList.add('ready');
+  }, 2500);
 
   // ============ CTA SMOOTH SCROLL TO ROLES ============
   document.querySelectorAll('#ctaJoin, .cta--about').forEach(btn => {
