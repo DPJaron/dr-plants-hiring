@@ -1,0 +1,1002 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Dr. Plants Jobs</title>
+<link rel="icon" href="assets/favicon.png" />
+<link rel="preload" as="image" href="assets/signature.png" fetchpriority="high" />
+<link rel="preload" as="image" href="assets/logo-circle.png" fetchpriority="high" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700;800&family=Caveat:wght@500;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --cream:      #FBE9C9;
+    --cream-2:    #F5DBA8;
+    --peach:      #F2A574;       /* warm peach from logo */
+    --peach-soft: #F8C49A;       /* softer peach */
+    --coral:      #E87A4E;       /* primary orange from logo */
+    --coral-deep: #D85A2F;       /* deeper orange */
+    --ink:        #0E0E0E;
+    --ink-2:      #1a1a1a;
+    --paper:      #FAF3E4;
+    --muted:      #5b5044;
+
+    --display: "Sora", "Inter", system-ui, sans-serif;
+    --body:    "Manrope", system-ui, sans-serif;
+    --hand:    "Caveat", "Brush Script MT", cursive;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
+  }
+  img { display: block; max-width: 100%; }
+  a { color: inherit; text-decoration: none; }
+
+  /* ====================================================== */
+  /* SECTION 1 — HERO                                       */
+  /* ====================================================== */
+
+  .hero {
+    position: relative;
+    min-height: 88vh;
+    background: var(--ink);
+    color: #fff;
+    overflow: hidden;
+    isolation: isolate;
+    padding: 0;
+  }
+
+  .marquee-stack {
+    position: absolute;
+    /* Aggressively oversized so the rotated rect always covers the viewport,
+       and the track is always wider than 2× visible — prevents any blank
+       sliver at the loop boundary or on first paint. */
+    top: -28%;
+    left: -20%;
+    width: 140%;
+    height: 156%;
+    display: grid;
+    grid-template-rows: repeat(4, 1fr);
+    row-gap: clamp(14px, 1.6vw, 24px);
+    padding: clamp(14px, 1.6vw, 24px) 0;
+    z-index: 0;
+    transform: rotate(-10deg);
+    transform-origin: center;
+    /* Hidden until all thumbs have decoded — prevents staggered pop-in. */
+    opacity: 0;
+    transition: opacity .45s ease-out;
+  }
+  .marquee-stack.ready { opacity: 1; }
+
+  .marquee {
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+  }
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    /* GPU-promote the row so scrolling is a compositor texture shift,
+       not a CPU repaint, on every frame. */
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    height: 100%;
+    animation: scroll-left var(--dur, 80s) linear infinite;
+  }
+  .marquee.reverse .marquee-track {
+    animation-name: scroll-right;
+  }
+  @keyframes scroll-left {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-33.3333%); }
+  }
+  @keyframes scroll-right {
+    from { transform: translateX(-33.3333%); }
+    to   { transform: translateX(0); }
+  }
+
+  .tile {
+    position: relative;
+    flex: 0 0 auto;
+    height: 100%;
+    aspect-ratio: 16 / 9;
+    /* Use margin instead of flex gap so the -33.33% loop is pixel-exact and seamless */
+    margin-right: clamp(14px, 1.6vw, 24px);
+    border-radius: 14px;
+    overflow: hidden;
+    /* Warm peach-ish fallback that blends with the brand instead of looking
+       like a black hole if a tile ever paints slow. */
+    background: #2a1d14;
+    /* Slow 2s fade back to dim when hover ends — fast .25s ramp on enter (see :hover rule) */
+    transition: opacity 2s ease, box-shadow 2s ease;
+    opacity: 0.42;
+    transform: translateZ(0);
+  }
+  .tile img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+  }
+  .tile:hover {
+    opacity: 0.7;
+    transition: opacity .25s ease;
+    z-index: 3;
+  }
+
+  /* Subtle radial vignette to keep centered content readable on top of mid-bright tiles */
+  .hero-dim {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(14,14,14,.45) 0%, rgba(14,14,14,.25) 60%, rgba(14,14,14,.55) 100%);
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .hero-inner {
+    position: relative;
+    z-index: 2;
+    min-height: 88vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 24px 36px;
+    gap: clamp(16px, 2.4vh, 30px);
+    pointer-events: none; /* let tile hovers through */
+  }
+  /* Only the CTA receives pointer events — everything else (headline, subhead,
+     lockup) is transparent so tiles underneath can be hovered through the text. */
+  .hero-inner .cta { pointer-events: auto; }
+
+  .lockup {
+    display: flex;
+    align-items: center;
+    gap: clamp(2px, 0.25vw, 4px);
+    /* Lowered the min from 64px to 42px so the lockup actually scales down
+       on phone-width viewports (where 7vw is well below 64). The signature
+       (height:56%) and "Jobs" (em-based via inheritance below) follow it. */
+    height: clamp(42px, 7vw, 96px);
+    /* Tie Jobs font-size to the lockup's height so Jobs scales in lockstep. */
+    font-size: clamp(42px, 7vw, 96px);
+  }
+  .lockup .badge {
+    height: 100%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    overflow: hidden;
+    background: transparent;
+    flex-shrink: 0;
+  }
+  .lockup .badge img { width: 100%; height: 100%; object-fit: contain; }
+  .lockup .word {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    /* Center the stack so the signature stays below the logo's top edge
+       AND "Jobs" sits comfortably above the logo's bottom edge. */
+    justify-content: center;
+    height: 100%;
+    line-height: .9;
+    overflow: hidden;
+  }
+  .lockup .signature {
+    /* Bumped up slightly from 48% — Jobs label scales with it (see below). */
+    height: 56%;
+    /* Reserve the signature's box BEFORE the PNG loads so "Jobs" doesn't
+       jump sideways when bytes arrive. Ratio matches the source (1200×420). */
+    aspect-ratio: 1200 / 420;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+    display: block;
+  }
+  .lockup .jobs {
+    font-family: var(--body);
+    font-weight: 800;
+    /* 0.3em of the lockup's font-size (which equals the lockup height).
+       At lockup 96px → ~29px; at 42px → ~13px. Scales naturally with the logo. */
+    font-size: 0.3em;
+    letter-spacing: .02em;
+    color: #fff;
+    line-height: 1;
+    margin-top: 0;
+  }
+
+  .hero h1 {
+    font-family: var(--display);
+    font-weight: 800;
+    /* Desktop/tablet rate — mobile gets a bumped formula in the @media block below. */
+    font-size: clamp(40px, 8vw, 115px);
+    letter-spacing: -.02em;
+    line-height: .95;
+    margin: 0;
+    text-shadow: 0 4px 30px rgba(0,0,0,.45);
+  }
+  /* Surgical kern fix: the dot of the 'i' in "stories" crashes into the 'r'
+     at large display weight; this nudges them apart by a hair without
+     visibly tracking the rest of the word. */
+  .hero h1 .kern {
+    letter-spacing: .025em;
+    margin-right: .005em;
+  }
+
+  .hero .subhead {
+    font-family: var(--hand);
+    font-weight: 700;
+    font-size: clamp(28px, 3.4vw, 52px);
+    color: var(--cream);
+    line-height: 1;
+    /* Pull closer to the h1 on desktop (mobile overrides below). */
+    margin: -18px 0 0;
+    text-shadow: 0 2px 18px rgba(0,0,0,.45);
+  }
+
+  .cta {
+    position: relative;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 36px;
+    border-radius: 999px;
+    background: var(--coral);
+    color: #fff;
+    font-family: var(--body);
+    font-weight: 800;
+    font-size: clamp(16px, 1.3vw, 19px);
+    letter-spacing: .02em;
+    border: none;
+    cursor: pointer;
+    box-shadow:
+      0 10px 28px rgba(216,90,47,.45),
+      inset 0 -3px 0 rgba(0,0,0,.18);
+    transition: background .15s ease, transform .15s ease, box-shadow .2s ease;
+    margin-top: 8px;
+    isolation: isolate;
+  }
+  /* Shine sweep — left to right, with a 1s pause between sweeps */
+  .cta::after {
+    content: "";
+    position: absolute;
+    top: 0; bottom: 0;
+    left: 0;
+    width: 60%;
+    background: linear-gradient(
+      105deg,
+      transparent 0%,
+      transparent 30%,
+      rgba(255,255,255,0.18) 42%,
+      rgba(255,255,255,0.65) 50%,
+      rgba(255,255,255,0.18) 58%,
+      transparent 70%,
+      transparent 100%
+    );
+    transform: translateX(-180%);
+    animation: cta-shine 4s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 1;
+    mix-blend-mode: screen;
+  }
+  @keyframes cta-shine {
+    /* 0-55%: slide L→R (~1.2s).  55-100%: hold offscreen (~1s pause). */
+    0%   { transform: translateX(-180%); }
+    55%  { transform: translateX(360%); }
+    100% { transform: translateX(360%); }
+  }
+  .cta > * { position: relative; z-index: 2; }
+  .cta:hover {
+    background: var(--coral-deep);
+    /* One quick shake on hover-enter, then the button settles. */
+    animation: shake .42s cubic-bezier(.36,.07,.19,.97) 1;
+  }
+  /* Pause the shine sweep while the button shakes so the two transforms don't fight visually. */
+  .cta:hover::after { animation-play-state: paused; }
+  @keyframes shake {
+    0%   { transform: translate(0, 0) rotate(0); }
+    15%  { transform: translate(-2px, 1px) rotate(-1.2deg); }
+    30%  { transform: translate(2px, -1px) rotate(1.2deg); }
+    45%  { transform: translate(-1px, 2px) rotate(-.6deg); }
+    60%  { transform: translate(1px, -2px) rotate(.6deg); }
+    75%  { transform: translate(-2px, 0) rotate(-1deg); }
+    100% { transform: translate(0, 0) rotate(0); }
+  }
+  .cta .arrow {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.22);
+    display: grid;
+    place-items: center;
+    font-size: 14px;
+  }
+
+  /* Reduced-motion: disable marquee scroll + CTA shake */
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track { animation: none; }
+    .cta:hover { animation: none; }
+  }
+  /* JS toggles this when the hero scrolls out of view */
+  .marquee-stack.paused .marquee-track { animation-play-state: paused; }
+
+  /* ====================================================== */
+  /* SECTION 2 — ABOUT                                      */
+  /* ====================================================== */
+
+  .about {
+    background: var(--paper);
+    color: var(--ink);
+    padding: clamp(70px, 9vw, 130px) clamp(24px, 6vw, 120px) clamp(40px, 5vw, 70px);
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+  }
+  .about-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+  }
+  .about-title {
+    font-family: var(--hand);
+    font-weight: 700;
+    font-size: clamp(76px, 11vw, 144px);
+    line-height: 1;
+    color: var(--coral-deep);
+    display: inline-block;
+    transform: rotate(-2deg);
+    margin: 0 0 clamp(28px, 4vw, 56px);
+    white-space: nowrap;
+  }
+  .about-stats {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: clamp(48px, 9vw, 140px);
+    margin-bottom: clamp(48px, 6vw, 88px);
+  }
+  .about-stats .stat {
+    text-align: center;
+  }
+  .about-stats .num {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: clamp(64px, 8vw, 128px);
+    line-height: .9;
+    letter-spacing: -.03em;
+    color: var(--ink);
+    /* Tabular figures keep digit widths constant during the count-up so the
+       number doesn't jiggle horizontally as it ticks. */
+    font-variant-numeric: tabular-nums;
+  }
+  .about-stats .label {
+    margin-top: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .24em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .about-blurb p {
+    font-size: clamp(18px, 1.55vw, 24px);
+    line-height: 1.55;
+    color: #2a241c;
+    max-width: 44ch;
+    margin: 0 auto;
+    text-wrap: pretty;
+  }
+  .about-blurb p + p {
+    margin-top: 1em;
+  }
+  /* In-About variant of the hero CTA: identical button, just spaced below the blurb. */
+  .cta--about {
+    margin-top: clamp(28px, 4vw, 48px);
+  }
+
+  @media (max-width: 600px) {
+    .about-stats {
+      gap: clamp(20px, 6vw, 36px);
+    }
+    .about-stats .num {
+      /* PC version untouched; mobile shrinks so "600M+" and "5.3M" both fit
+         side-by-side without clipping at viewports down to ~340px. */
+      font-size: clamp(40px, 13vw, 64px);
+    }
+    .about-stats .label {
+      font-size: 11px;
+      letter-spacing: .18em;
+    }
+  }
+
+  /* ====================================================== */
+  /* SECTION 3 — OPEN ROLES                                 */
+  /* ====================================================== */
+
+  .roles {
+    position: relative;
+    background: var(--paper);
+    color: var(--ink);
+    padding: clamp(48px, 6vw, 90px) clamp(24px, 6vw, 120px) clamp(60px, 8vw, 120px);
+    overflow: hidden;
+  }
+  .roles-inner {
+    max-width: 980px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+    text-align: center;
+  }
+  .roles h2 {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: clamp(80px, 13vw, 200px);
+    line-height: .9;
+    letter-spacing: -.03em;
+    margin: 0;
+    color: var(--ink);
+  }
+  .roles .apply-sub {
+    font-family: var(--hand);
+    font-weight: 700;
+    font-size: clamp(28px, 3.4vw, 48px);
+    color: var(--coral-deep);
+    line-height: 1;
+    margin: -4px 0 56px;
+  }
+
+  .role-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+  .role {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 16px;
+    padding: 22px 16px 22px 36px;
+    background: #ffffff;
+    color: var(--ink);
+    border-radius: 999px;
+    box-shadow: 0 6px 20px rgba(14,14,14,.06), 0 1px 2px rgba(14,14,14,.05);
+    transition: transform .18s ease, box-shadow .2s ease;
+    cursor: pointer;
+  }
+  .role:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 32px rgba(14,14,14,.10), 0 2px 4px rgba(14,14,14,.06);
+  }
+  .role .title {
+    font-family: var(--body);
+    font-weight: 800;
+    font-size: clamp(20px, 2.2vw, 28px);
+    letter-spacing: -.01em;
+    line-height: 1;
+    color: var(--ink);
+    text-align: left;
+  }
+  .apply-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 22px;
+    background: var(--coral);
+    color: #fff;
+    border-radius: 999px;
+    font-family: var(--body);
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    transition: background .15s ease;
+    box-shadow: inset 0 -2px 0 rgba(0,0,0,.18);
+  }
+  .apply-btn .arrow-circle {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.22);
+    display: grid;
+    place-items: center;
+    transition: transform .25s ease;
+  }
+  .role:hover .apply-btn { background: var(--coral-deep); }
+  .role:hover .apply-btn .arrow-circle { transform: translateX(3px); }
+  .apply-btn svg { width: 12px; height: 12px; }
+
+  /* ============ POLAROID ============ */
+  .polaroid-wrap {
+    margin: clamp(72px, 10vw, 140px) auto 24px;
+    display: flex;
+    justify-content: flex-start;
+    padding-left: clamp(20px, 5vw, 60px);
+  }
+  @media (max-width: 760px) {
+    .polaroid-wrap {
+      justify-content: center;
+      padding-left: 0;
+    }
+  }
+  .polaroid {
+    background: #ffffff;
+    padding: 12px 12px 16px;
+    box-shadow:
+      0 24px 40px rgba(0,0,0,.18),
+      0 6px 12px rgba(0,0,0,.10);
+    transform: rotate(-5deg);
+    width: clamp(160px, 14vw, 210px);
+  }
+  .polaroid .photo {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    background: #ffffff;
+    display: block;
+  }
+  .polaroid .photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .polaroid .caption {
+    font-family: var(--hand);
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--coral-deep);
+    text-align: center;
+    margin-top: 12px;
+    line-height: 1;
+  }
+
+  /* ============ FLOATING POLAROIDS (scattered) ============ */
+  .polaroid--float {
+    position: absolute;
+    z-index: 4;
+    pointer-events: none;
+  }
+  .polaroid--float .caption { font-size: 19px; }
+
+  /* About section floats — deliberately asymmetric */
+  .about .pf-about-1 {
+    top: 11%;
+    left: 3%;
+    transform: rotate(-11deg);
+  }
+  .about .pf-about-2 {
+    bottom: 18%;
+    right: 4%;
+    transform: rotate(5deg);
+  }
+
+  /* Roles section floats — staggered vertically, mixed rotations */
+  .roles .pf-roles-1 {
+    top: 8%;
+    left: 5%;
+    transform: rotate(4deg);
+  }
+  .roles .pf-roles-2 {
+    top: 42%;
+    right: 3%;
+    transform: rotate(-8deg);
+  }
+
+  @media (max-width: 1100px) {
+    .polaroid--float { display: none; }
+  }
+
+  /* Footer */
+  .footer {
+    background: var(--ink);
+    color: #c7bdb0;
+    padding: 56px clamp(24px, 6vw, 120px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 18px;
+    font-size: 14px;
+  }
+  .footer .brand {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
+  }
+  .footer .brand img.badge {
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
+  }
+  .footer .brand img.sig {
+    height: 44px;
+    width: auto;
+    aspect-ratio: 1200 / 420;
+  }
+  .footer .legal {
+    color: #8d8377;
+    font-size: 13px;
+    letter-spacing: .02em;
+  }
+
+  /* YouTube button (footer) */
+  .yt-btn {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 26px 14px 22px;
+    background: #FF0000;
+    color: #fff;
+    font-family: var(--body);
+    font-weight: 700;
+    font-size: clamp(15px, 1.25vw, 18px);
+    letter-spacing: .01em;
+    text-decoration: none;
+    border-radius: 999px;
+    box-shadow:
+      0 10px 24px rgba(255, 0, 0, .28),
+      0 2px 6px rgba(0, 0, 0, .08);
+    transition:
+      transform .22s cubic-bezier(.34,1.56,.64,1),
+      box-shadow .22s ease,
+      background .2s ease;
+    cursor: pointer;
+  }
+  /* Shine sweep — same cadence as the hero "Apply Now" CTA */
+  .yt-btn::after {
+    content: "";
+    position: absolute;
+    top: 0; bottom: 0;
+    left: 0;
+    width: 60%;
+    background: linear-gradient(
+      105deg,
+      transparent 0%,
+      transparent 30%,
+      rgba(255,255,255,0.18) 42%,
+      rgba(255,255,255,0.70) 50%,
+      rgba(255,255,255,0.18) 58%,
+      transparent 70%,
+      transparent 100%
+    );
+    transform: translateX(-180%);
+    animation: cta-shine 4s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 1;
+    mix-blend-mode: screen;
+  }
+  .yt-btn > * { position: relative; z-index: 2; }
+  .yt-btn__icon {
+    width: 26px;
+    height: 26px;
+    display: block;
+    flex-shrink: 0;
+  }
+  .yt-btn:hover,
+  .yt-btn:focus-visible {
+    background: #E60000;
+    transform: translateY(-3px) scale(1.05);
+    box-shadow:
+      0 16px 32px rgba(255, 0, 0, .38),
+      0 4px 10px rgba(0, 0, 0, .10);
+    outline: none;
+  }
+  .yt-btn:hover::after { animation-play-state: paused; }
+  .yt-btn:active {
+    transform: translateY(-1px) scale(1.02);
+  }
+
+  /* Tighten hero on small screens */
+  @media (max-width: 768px) {
+    .hero, .hero-inner { min-height: 74vh; }
+    /* Bumped rate on phones so the headline reads larger without affecting desktop. */
+    .hero h1 { font-size: clamp(44px, 13vw, 92px); }
+    .hero .subhead { font-size: clamp(18px, 5vw, 32px); margin-top: -12px; }
+    .roles h2 { font-size: 76px; }
+    .role { padding: 14px 12px 14px 22px; gap: 10px; }
+    .role .title { font-size: 18px; }
+    .apply-btn { padding: 10px 14px; font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ SECTION 1 — HERO ============ -->
+<section class="hero" data-screen-label="01 Hero">
+  <div class="marquee-stack" id="marqueeStack" aria-hidden="true"></div>
+  <div class="hero-dim" aria-hidden="true"></div>
+
+  <div class="hero-inner">
+    <div class="lockup">
+      <div class="badge"><img src="assets/logo-circle.png" alt="Dr. Plants logo" /></div>
+      <div class="word">
+        <img class="signature" src="assets/signature.png" alt="Dr. Plants" fetchpriority="high" decoding="async" />
+        <div class="jobs">Jobs</div>
+      </div>
+    </div>
+
+    <h1>Tell sto<span class="kern">r</span>ies<br/>to millions</h1>
+
+    <button class="cta" id="ctaJoin" type="button">
+      Apply Now
+    </button>
+  </div>
+</section>
+
+<!-- ============ SECTION 2 — ABOUT ============ -->
+<section class="about" data-screen-label="02 About" id="about">
+  <!-- floating polaroids -->
+  <div class="polaroid polaroid--float pf-about-1">
+    <div class="photo"><img src="assets/p/ducklings.jpg" alt="" loading="eager" fetchpriority="low" decoding="sync" /></div>
+    <div class="caption">duck moment</div>
+  </div>
+  <div class="polaroid polaroid--float pf-about-2">
+    <div class="photo"><img src="assets/p/chameleon.jpg" alt="" loading="eager" fetchpriority="low" decoding="sync" /></div>
+    <div class="caption">mood swing</div>
+  </div>
+
+  <div class="about-inner">
+    <h2 class="about-title">About Us</h2>
+
+    <div class="about-stats">
+      <div class="stat">
+        <div class="num" data-count-from="1.0" data-count-to="5.3" data-suffix="M" data-decimals="1">1.0M</div>
+        <div class="label">Subscribers</div>
+      </div>
+      <div class="stat">
+        <div class="num" data-count-from="100" data-count-to="600" data-suffix="M+" data-decimals="0">100M+</div>
+        <div class="label">Views</div>
+      </div>
+    </div>
+
+    <div class="about-blurb">
+      <p>Our videos are insane to make. The people who make them are even more so. We&rsquo;re hiring the most creative, innovative, and ambitious minds to dream bigger, build harder, and change the world.</p>
+      <p>Think you have what it takes? Let&rsquo;s talk.</p>
+    </div>
+
+    <button class="cta cta--about" type="button">
+      Apply Now
+    </button>
+  </div>
+</section>
+
+<!-- ============ SECTION 3 — OPEN ROLES ============ -->
+<section class="roles" data-screen-label="03 Open Roles" id="roles">
+  <!-- floating polaroids -->
+  <div class="polaroid polaroid--float pf-roles-1">
+    <div class="photo"><img src="assets/p/frogs.jpg" alt="" loading="eager" fetchpriority="low" decoding="sync" /></div>
+    <div class="caption">frog party</div>
+  </div>
+  <div class="polaroid polaroid--float pf-roles-2">
+    <div class="photo"><img src="assets/p/ducks-bathtub.jpg" alt="" loading="eager" fetchpriority="low" decoding="sync" /></div>
+    <div class="caption">bath day</div>
+  </div>
+
+  <div class="roles-inner">
+    <h2>Roles</h2>
+    <div class="apply-sub">Apply now.</div>
+
+    <div class="role-list">
+      <a class="role" href="https://forms.fillout.com/t/td4hAPt1gWus" target="_blank" rel="noopener">
+        <span class="title">Creative</span>
+        <span class="apply-btn">Apply Now <span class="arrow-circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 5l7 7-7 7"/></svg></span></span>
+      </a>
+      <a class="role" href="https://forms.fillout.com/t/n5XPuYE5cHus" target="_blank" rel="noopener">
+        <span class="title">Producer</span>
+        <span class="apply-btn">Apply Now <span class="arrow-circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 5l7 7-7 7"/></svg></span></span>
+      </a>
+      <a class="role" href="https://forms.fillout.com/t/7RYVw4t9hZus" target="_blank" rel="noopener">
+        <span class="title">Videographer / Editor</span>
+        <span class="apply-btn">Apply Now <span class="arrow-circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 5l7 7-7 7"/></svg></span></span>
+      </a>
+      <a class="role" href="https://forms.fillout.com/t/wq8N1gSXKXus" target="_blank" rel="noopener">
+        <span class="title">Thumbnail Artist</span>
+        <span class="apply-btn">Apply Now <span class="arrow-circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 5l7 7-7 7"/></svg></span></span>
+      </a>
+    </div>
+
+    <div class="polaroid-wrap">
+      <div class="polaroid">
+        <div class="photo"><img src="assets/p/polaroid-main.jpg" alt="Hatching ostrich chick meeting its keeper" loading="eager" fetchpriority="low" decoding="sync" /></div>
+        <div class="caption">see you soon!</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="brand">
+    <img class="badge" src="assets/logo-circle.png" alt="Dr. Plants logo" />
+    <img class="sig" src="assets/signature.png" alt="Dr. Plants" />
+  </div>
+
+  <a class="yt-btn" href="https://www.youtube.com/@DrPlants" target="_blank" rel="noopener noreferrer" aria-label="Watch Dr. Plants on YouTube">
+    <svg class="yt-btn__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1c.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8zM9.6 15.6V8.4l6.2 3.6-6.2 3.6z" fill="currentColor"/>
+    </svg>
+    <span class="yt-btn__label">Watch on YouTube</span>
+  </a>
+
+  <div class="legal">© 2026 Dr. Plants, LLC. All rights reserved.</div>
+</footer>
+
+<script>
+  // ============ HERO MARQUEE ============
+  // Build 4 rows of alternating-direction scrolling thumbnails.
+  // Tiles are duplicated (3 copies) so the -33.33% keyframe loops seamlessly.
+
+  const THUMBS = [
+    "assets/m/01.jpg","assets/m/02.jpg","assets/m/03.jpg",
+    "assets/m/04.jpg","assets/m/05.jpg","assets/m/06.jpg",
+    "assets/m/07.jpg","assets/m/08.jpg","assets/m/09.jpg",
+    "assets/m/10.jpg","assets/m/11.jpg","assets/m/12.jpg",
+    "assets/m/13.jpg"
+  ];
+
+  // Disjoint partition of the 13 thumbs across 4 rows — ensures the same thumbnail
+  // never appears in two rows simultaneously, because each thumb belongs to exactly
+  // one row. Within a row, the row's small subset is cycled across 12 tile slots.
+  const ROW_SUBSETS = [
+    [0, 4, 8, 12],  // row 0 — 4 unique
+    [1, 5, 9],      // row 1 — 3 unique
+    [2, 6, 10],     // row 2 — 3 unique
+    [3, 7, 11],     // row 3 — 3 unique
+  ];
+  function rowThumbs(rowIdx) {
+    const subset = ROW_SUBSETS[rowIdx];
+    const TILES_PER_COPY = 12; // 12 = lcm-friendly with both 3 and 4, so the
+                                // last tile of a copy never matches the first of
+                                // the next copy — the loop seam stays seamless.
+    const out = [];
+    for (let i = 0; i < TILES_PER_COPY; i++) {
+      out.push(THUMBS[subset[i % subset.length]]);
+    }
+    return out;
+  }
+
+  function buildMarquee() {
+    const stack = document.getElementById('marqueeStack');
+    const rows = 4;
+    const speeds = [105, 130, 118, 142]; // seconds per loop, varied per row
+    const allImgs = [];
+    for (let r = 0; r < rows; r++) {
+      const row = document.createElement('div');
+      row.className = 'marquee' + (r % 2 === 1 ? ' reverse' : '');
+      const track = document.createElement('div');
+      track.className = 'marquee-track';
+      track.style.setProperty('--dur', speeds[r] + 's');
+      const list = rowThumbs(r);
+      for (let copy = 0; copy < 3; copy++) {
+        list.forEach(src => {
+          const tile = document.createElement('div');
+          tile.className = 'tile';
+          const img = document.createElement('img');
+          img.loading = 'eager';
+          // sync decoding: since these are cached by the time we reveal, the
+          // browser commits pixels before the next paint, eliminating blank flashes.
+          img.decoding = 'sync';
+          img.src = src;
+          img.alt = '';
+          tile.appendChild(img);
+          track.appendChild(tile);
+          allImgs.push(img);
+        });
+      }
+      row.appendChild(track);
+      stack.appendChild(row);
+    }
+    return allImgs;
+  }
+  const marqueeImgs = buildMarquee();
+
+  // ============ STAT COUNTERS ============
+  // Count each .num element up from its data-count-from to its data-count-to
+  // target the first time it scrolls into view. Uses requestAnimationFrame with
+  // an ease-out curve so the number decelerates as it lands on the final value.
+  (() => {
+    const nums = document.querySelectorAll('.about-stats .num[data-count-to]');
+    if (!nums.length || typeof IntersectionObserver === 'undefined') return;
+
+    const animate = (el) => {
+      const from = parseFloat(el.dataset.countFrom || '0');
+      const target = parseFloat(el.dataset.countTo);
+      const suffix = el.dataset.suffix || '';
+      const decimals = parseInt(el.dataset.decimals || '0', 10);
+      const duration = 1600; // ms
+      const start = performance.now();
+      const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+
+      const tick = (now) => {
+        const t = Math.min(1, (now - start) / duration);
+        const v = from + (target - from) * easeOut(t);
+        el.textContent = v.toFixed(decimals) + suffix;
+        if (t < 1) requestAnimationFrame(tick);
+        else el.textContent = target.toFixed(decimals) + suffix;
+      };
+      requestAnimationFrame(tick);
+    };
+
+    const io = new IntersectionObserver((entries, obs) => {
+      for (const e of entries) {
+        if (e.isIntersecting) {
+          animate(e.target);
+          obs.unobserve(e.target);
+        }
+      }
+    }, { threshold: 0.4 });
+
+    nums.forEach(n => io.observe(n));
+  })();
+
+  // ============ PAUSE MARQUEE OFFSCREEN ============
+  // Use IntersectionObserver on the hero so the four scrolling tracks stop
+  // animating as soon as they leave the viewport. Saves a lot of CPU/GPU
+  // while the user is reading sections 2 and 3.
+  (() => {
+    const stack = document.getElementById('marqueeStack');
+    const hero = document.querySelector('.hero');
+    if (!stack || !hero || typeof IntersectionObserver === 'undefined') return;
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) stack.classList.remove('paused');
+        else stack.classList.add('paused');
+      }
+    }, { threshold: 0.01 });
+    io.observe(hero);
+  })();
+
+  // ============ SYNCHRONIZED FADE-IN ============
+  // Wait until every ACTUAL DOM tile image has decoded (not a side-channel
+  // preload), then reveal the marquee in one fade. This guarantees no tile
+  // shows its dark fallback background after the reveal starts.
+  (async () => {
+    const stack = document.getElementById('marqueeStack');
+    const waitOne = (img) => {
+      if (img.complete && img.naturalWidth > 0) {
+        return img.decode ? img.decode().catch(() => {}) : Promise.resolve();
+      }
+      return new Promise(resolve => {
+        img.addEventListener('load', () => {
+          (img.decode ? img.decode().catch(() => {}) : Promise.resolve()).then(resolve);
+        }, { once: true });
+        img.addEventListener('error', resolve, { once: true });
+      });
+    };
+    try {
+      await Promise.all(marqueeImgs.map(waitOne));
+    } catch (_) { /* never block reveal on a bad asset */ }
+    // Two RAFs: first to let the browser commit the just-decoded bitmaps to
+    // their tiles, second to start the opacity transition on a clean frame.
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      stack.classList.add('ready');
+    }));
+  })();
+
+  // ============ CTA SMOOTH SCROLL TO ROLES ============
+  document.querySelectorAll('#ctaJoin, .cta--about').forEach(btn => {
+    btn.addEventListener('click', () => {
+      // Scroll so the "Roles" heading + "Apply now." subtitle land at the top
+      // of the viewport with a bit of breathing room above.
+      const target = document.querySelector('.roles h2') || document.getElementById('roles');
+      const y = target.getBoundingClientRect().top + window.scrollY - 60;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    });
+  });
+</script>
+
+</body>
+</html>
